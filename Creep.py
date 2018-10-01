@@ -8,8 +8,10 @@ from colorama import Fore, Back, Style
 init()
 
 size = 20
-step = .1
-max_creep = 10
+time_step = .1
+simulate_iteration = 0
+simulate_steps = 20
+max_creep = 9
 cursor = [0, 0]
 
 grid = {}
@@ -44,7 +46,7 @@ def grow_creep(_grid):
         for x in range(size):
             lowest_neighbor = check_lowest_neighbors_creep(_grid, x, y)
             # print(neighbors)
-            if _grid[x, y].item == "spawn":
+            if _grid[x, y].item == "spawn" and _grid[x, y].creep_height < max_creep:
                 _grid[x, y].creep_height += 1
             if _grid[x, y].creep_height > lowest_neighbor[2] + 1:
 
@@ -106,7 +108,6 @@ def print_grid(_grid):
         sys.stdout.flush()
 
 while True:
-    time.sleep(step)
     if kbhit():
         key = ord(getch())
         if key == 120:  # x
@@ -123,22 +124,31 @@ while True:
             print("left")
             cursor[0] -= 1
             simulate = False
+            print_grid(grid)
         elif key == 100:  # d
             print("right")
             cursor[0] += 1
             print(cursor)
             simulate = False
+            print_grid(grid)
         elif key == 119:  # w
             print("up")
             cursor[1] -= 1
             simulate = False
+            print_grid(grid)
         elif key == 115:  # s
             print("down")
             cursor[1] += 1
             simulate = False
+            print_grid(grid)
         new_cursor = [0 if i < 0 else i for i in cursor]  # change all negatives to 0
         cursor = new_cursor
     if simulate:
         grow_creep(grid)
-    print_grid(grid)
+        simulate_iteration += 1
+
+    if simulate_iteration == simulate_steps:
+        print_grid(grid)
+        simulate_iteration = 0
+        time.sleep(time_step)
 
